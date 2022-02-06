@@ -211,10 +211,12 @@
 
 	$('.save-rtpcr').click(function(e){
 		savetReport('rtpcr');
+		$(this).addClass('spinner spinner-white spinner-right');
     });
 
 	$('.save-antigens').click(function(e){
 		savetReport('antigens');
+		$(this).addClass('spinner spinner-white spinner-right');
     });
 
 	$('.antigens_status').on('change.bootstrapSwitch', function(e) {
@@ -258,6 +260,9 @@
 			dataType: "json",
 			success: function(data, textStatus, jqXHR)
 			{
+				$('.save-rtpcr').removeClass('spinner spinner-white spinner-right');
+				$('.save-antigens').removeClass('spinner spinner-white spinner-right');
+
 				if(data.success == true)
 				{
 					toastr.success(data.message);
