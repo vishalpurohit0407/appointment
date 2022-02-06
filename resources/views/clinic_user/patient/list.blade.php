@@ -1,0 +1,254 @@
+<!-- Edit Profile Page -->
+@extends('layouts.app')
+@section('title')
+  {{$title}}
+@endsection
+@section('content')
+<!--begin::Entry-->
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container">
+        <!--begin::Card-->
+        <x-flash-message></x-flash-message>
+        <div class="card card-custom">
+            <div class="card-header">
+                <div class="card-title">
+                <h3 class="card-label">{{$title}}
+                    <span class="d-block text-muted pt-2 font-size-sm">You can add, edit, delete & view full details of a particular patient.</span>
+                </h3>
+                </div>
+                <div class="card-toolbar">
+                    <!--begin::Button-->
+                    <a href="{{route('patient.create')}}" class="btn btn-primary font-weight-bolder">
+                    <span class="svg-icon svg-icon-md">
+                        <!--begin::Svg Icon | path:/metronic/theme/html/demo7/dist/assets/media/svg/icons/Design/Flatten.svg-->
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <rect x="0" y="0" width="24" height="24" />
+                                <circle fill="#000000" cx="9" cy="15" r="6" />
+                                <path d="M8.8012943,7.00241953 C9.83837775,5.20768121 11.7781543,4 14,4 C17.3137085,4 20,6.6862915 20,10 C20,12.2218457 18.7923188,14.1616223 16.9975805,15.1987057 C16.9991904,15.1326658 17,15.0664274 17,15 C17,10.581722 13.418278,7 9,7 C8.93357256,7 8.86733422,7.00080962 8.8012943,7.00241953 Z" fill="#000000" opacity="0.3" />
+                            </g>
+                        </svg>
+                        <!--end::Svg Icon-->
+                    </span>New Record</a>
+                    <!--end::Button-->
+                    <!--begin::Button-->
+                    <a href="{{route('patient.import')}}" class="btn btn-primary font-weight-bolder ml-2">
+                    <span class="svg-icon svg-icon-md">
+                        <!--begin::Svg Icon | path:/metronic/theme/html/demo7/dist/assets/media/svg/icons/Design/Flatten.svg-->
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <rect x="0" y="0" width="24" height="24" />
+                                <circle fill="#000000" cx="9" cy="15" r="6" />
+                                <path d="M8.8012943,7.00241953 C9.83837775,5.20768121 11.7781543,4 14,4 C17.3137085,4 20,6.6862915 20,10 C20,12.2218457 18.7923188,14.1616223 16.9975805,15.1987057 C16.9991904,15.1326658 17,15.0664274 17,15 C17,10.581722 13.418278,7 9,7 C8.93357256,7 8.86733422,7.00080962 8.8012943,7.00241953 Z" fill="#000000" opacity="0.3" />
+                            </g>
+                        </svg>
+                        <!--end::Svg Icon-->
+                    </span>Import Recoard</a>
+                    <!--end::Button-->
+                </div>
+            </div>
+            <div class="card-body">
+                <!--begin: Datatable-->
+                <table class="table table-separate table-head-custom " id="kt_datatable" style="margin-top: 13px !important">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+                <!--end: Datatable-->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+    <!--end::Container-->
+</div>
+<!-- Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Appointment Time</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 mb-5">
+                <div class="input-group date" id="appointment_time" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input appointment_time_input" placeholder="Select date &amp; time" data-target="#appointment_time" />
+                    <div class="input-group-append" data-target="#appointment_time" data-toggle="datetimepicker">
+                        <span class="input-group-text">
+                            <i class="ki ki-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveAppointBtn" onclick="savetAppointment()">Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--end::Content-->
+@endsection
+@section('pagewise_js')
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table = $('#kt_datatable');
+        // begin first table
+        table.DataTable({
+            responsive: true,
+            searchDelay: 500,
+            processing: true,
+            serverSide: true,
+            order: [[ 1, "desc" ]],
+            ajax: {
+                url: "{{route('patient.listdata')}}",
+                type: 'POST',
+                data: {
+                    // parameters for custom backend script demo
+                    "_token": "{{ csrf_token() }}",
+                },
+            },
+            columns: [
+                {data: 'srno'},
+                {data: 'name'},
+                {data: 'email'},
+                {data: 'status'},
+                {data: 'created_at'},
+                {data: 'actions', responsivePriority: -1},
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    orderable: false,
+                    "title": "Sr No.",
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    width: '150px',
+                    targets: -1,
+                    title: 'Actions',
+                    orderable: false,
+                    render: function(data, type, full, meta) {
+                        var urledit = '{{ route("patient.edit",":id") }}';
+                        var urlshow= '{{ route("patient.show",":id") }}';
+                        var urldelete = '{{ route("patient.destroy",":id") }}';
+                        urlshow = urlshow.replace(':id', full.hashid);
+                        urledit = urledit.replace(':id', full.hashid);
+                        urldelete = urldelete.replace(':id', full.hashid);
+                        return '\
+                            <a href="'+urlshow+'" class="btn btn-sm btn-clean btn-icon" title="Show details">\
+                                <i class="la la-clipboard-list icon-xl"></i>\
+                            </a>\
+                            <a href="'+urledit+'" class="btn btn-sm btn-clean btn-icon" title="Edit details">\
+                                <i class="la la-edit icon-xl"></i>\
+                            </a>\
+                            <a href="javascript:;" data-id="'+data+'" class="btn btn-sm btn-clean btn-icon" title="Delete" onClick="destroyFunction(this)">\
+                                <i class="la la-trash icon-xl"></i>\
+                            </a>\
+                            <form id="'+data+'" action="'+urldelete+'" method="POST" style="display: none;"> {{ method_field('delete') }} {{ csrf_field() }} </form>\
+                            <a href="javascript:void(0);" data-id="'+data+'" onClick="initAppointment(this)" class="btn btn-sm btn-clean btn-icon" title="Book Appointment">\
+                                <i class="la la-calendar icon-xl"></i>\
+                            </a>\
+                        ';
+                    },
+                },
+                {
+                    width: '75px',
+                    targets: -3,
+                    render: function(data, type, full, meta) {
+                        var status = {
+                            0: {'title': 'Inactive', 'state': 'danger'},
+                            1: {'title': 'Active', 'state': 'success'},
+                        };
+                        if (typeof status[data] === 'undefined') {
+                            return data;
+                        }
+                        return '<span class="label label-' + status[data].state + ' label-dot mr-2"></span>' +
+                            '<span class="font-weight-bold text-' + status[data].state + '">' + status[data].title + '</span>';
+                    },
+                },
+            ],
+        });
+    });
+
+    function destroyFunction(e){
+        var id = $(e).attr('data-id');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won\'t be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!"
+        }).then(function(result) {
+            if (result.value) {
+                document.getElementById(id).submit();
+            }
+        });
+    }
+
+    function initAppointment(e){
+
+        var id = $(e).attr('data-id');
+
+        $('#saveAppointBtn').attr('data-id', id);
+
+        $('#appointmentModal').modal('show');
+        $('#appointment_time').datetimepicker({
+            minDate : new Date(),
+        });
+    }
+
+    function savetAppointment(){
+
+        var id = $('#saveAppointBtn').attr('data-id');
+        var time = $('.appointment_time_input').val();
+
+        if(time=="")
+        {
+            toastr.clear();
+            toastr.error('Please enter Appointment Time');
+            return false;
+        }
+
+         $.ajax({
+            url : "{{route('patient.save-appointment')}}",
+            type: "POST",
+            data : {
+                "patient_id" : id,
+                "time"       : time,
+                "_token"     : "{{ csrf_token() }}"
+            },
+            dataType: "json",
+            success: function(data, textStatus, jqXHR)
+            {
+                if(data.success == true)
+                {
+                    toastr.success(data.message);
+                    $('#appointmentModal').modal('hide');
+                    $('.appointment_time_input').val('');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+
+            }
+        });
+
+    }
+
+</script>
+@endsection
