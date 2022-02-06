@@ -72,7 +72,7 @@
                       <tbody>
                         <tr>
                           <td style="text-align:left;"><img width="100" src="{{asset('assets/media/logos/appointment-logo.png')}}" alt=""></td>
-                          <td style="text-align: right; color:#999;"><span>Hello {{ $patient->name }} {{ $patient->last_name }},</span></td>
+                          <td style="text-align: right; color:#999;padding-right:30px;"><span>Hello {{ $patient->name }} {{ $patient->last_name }},</span></td>
                         </tr>
                       </tbody>
                     </table>
@@ -106,10 +106,10 @@
                         <th>Final Report Date</th>
                       </tr>
                       <tr>
-                        <td>AA</td>
-                        <td>AA</td>
-                        <td>AA</td>
-                        <td>AA</td>
+                        <td>{{ date("F d, Y", strtotime($patient->dob))}}</td>
+                        <td>{{$maildetails['provider_name']}}</td>
+                        <td>{{ date("H:i A", strtotime($patientReport->received_date))}}</td>
+                        <td>{{ date("H:i A", strtotime($patientReport->received_date))}}</td>
                       </tr>
                     </table>
 
@@ -123,15 +123,47 @@
                         <th width="25%">Units</th>
                       </tr>
                       <tr>
-                        <td>aaaa</td>
-                        <td>Results</td>
-                        <td>Reference Range</td>
-                        <td>Units</td>
+                        <td>
+                          @if($maildetails['type'] == 'antigens')
+                            Antigens
+                          @else
+                            RT-PCR
+                          @endif
+                        </td>
+                        <td>
+                          @if($maildetails['type'] == 'antigens')
+                            {{ $patientReport->antigens_status == 0 ? 'Negative' : 'Positive'}}
+                          @else
+                            {{ $patientReport->rt_pcr_status == 0 ? 'Negative' : 'Positive'}}
+                          @endif
+                      </td>
+                        <td>
+                          @if($maildetails['type'] == 'antigens')
+                            {{ $patientReport->antigens_status == 0 ? 'Negative' : 'Positive'}}
+                          @else
+                            {{ $patientReport->rt_pcr_status == 0 ? 'Negative' : 'Positive'}}
+                          @endif
+                        </td>
+                        <td>
+                          @if($maildetails['type'] == 'antigens')
+                            {{ $patientReport->antigens_count}}
+                          @else
+                            {{ 'N/A'}}
+                          @endif
+                        </td>
                       </tr>
                       <tr>
                         <td style="text-align:left;" colspan="100%">
-                          <p>SARS-CoV-2 by RT-PCR is Negative</p>
-                          <p>This specimen was evaluated using a real-time RT-PCR-based methodology</p>
+
+                          @if($maildetails['type'] == 'antigens')
+                            <p>SARS-CoV-2 by Antigens is {{ $patientReport->antigens_status == 0 ? 'Negative' : 'Positive'}}
+                          </p>
+                            <p>This specimen was evaluated using a real-time Antigens-based methodology</p>
+                          @else
+                            <p>SARS-CoV-2 by RT-PCR is {{ $patientReport->rt_pcr_status == 0 ? 'Negative' : 'Positive'}}
+                            </p>
+                            <p>This specimen was evaluated using a real-time RT-PCR-based methodology</p>
+                          @endif
                           <p>A negative result does not rule out COVID-19 and, therefore, should not result in
                             removing isolation precautions without careful clinical review for any symptoms or
                              prior exposures. This result does not rule out co-infections with other pathogens.

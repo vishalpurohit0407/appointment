@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\PatientAppointment;
 use App\Models\PatientReport;
 use Illuminate\Http\Request;
+use Auth;
 use Hash;
 use Storage;
 use Mail;
@@ -23,13 +24,6 @@ class PatientReportController extends Controller
      */
     public function index()
     {
-        $report_id = 2;
-        $patientReport = PatientReport::where('id', $report_id)->first();
-        $patient       = User::where('id', $patientReport->patient_id)->first();
-        $mailData = array("patient"=>$patient,"patientReport"=>$patientReport);
-
-        Mail::to('tagadiyamayur@gmail.com')->send(new mailPatientReport($mailData));
-
         return view('clinic_user.patient-report.list',array('title' => 'Patient Reports / Appointments','breadcrumb' => array()));
     }
 
@@ -289,6 +283,13 @@ class PatientReportController extends Controller
 
         $model->save();
 
+        $patientReport = PatientReport::where('id', $model->id)->first();
+        $patient       = User::where('id', $patient_id)->first();
+
+        $mailData = array("patient"=>$patient,"patientReport"=>$patientReport, 'provider_name' => Auth::user()->provider_name, 'type' => $type);
+
+        Mail::to($patient->email)->send(new mailPatientReport($mailData));
+
         return response()->json([
             'success' => true,
             'message' => 'Patient Report saved successfully'
@@ -308,14 +309,13 @@ class PatientReportController extends Controller
         $report_id = $request->get('report_id');
         $type      = $request->get('type');
 
-        //  $mailData = array("password"=>'aaaa',"name"=>'asasa');
-        //         Mail::to('tagadiyamayur@gmail.com')->send(new mailForgotPassword($mailData));
-
         try {
-            $patientReport      = PatientReport::where('id', $report_id)->first();
-            $patientAppointment = PatientAppointment::where('patient_id', $patientReport->patient_id)->where('id', $patientReport->appointment_id)->first();
-            $patient            = User::where('id', $patientReport->patient_id)->first();
+            $patientReport = PatientReport::where('id', $report_id)->first();
+            $patient       = User::where('id', $patientReport->patient_id)->first();
 
+            $mailData = array("patient"=>$patient,"patientReport"=>$patientReport, 'provider_name' => Auth::user()->provider_name, 'type' => $type);
+
+            Mail::to($patient->email)->send(new mailPatientReport($mailData));
 
             return response()->json([
                 'success' => true,

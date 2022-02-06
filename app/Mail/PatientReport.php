@@ -31,7 +31,7 @@ class PatientReport extends Mailable
     {
         $maildetails = $this->details;
         $aa = view('mail.patient-report')->with(compact('maildetails'))->render();
-       // echo ($aa);die;
+
         return $this->from(Config::get('mail.from.address'), Config::get('mail.from.name'))
             ->subject('Patient Report')
             ->view('mail.patient-report')
